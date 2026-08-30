@@ -2,33 +2,36 @@
 
 > Universal music metadata resolver for Python.
 
-FetchTune is a lightweight Python library for resolving music links into structured metadata.
+FetchTune is a lightweight Python library and CLI for resolving music URLs into clean, structured metadata.
 
-It provides a unified interface for extracting track, artist, album, artwork, release date, duration, and platform information from supported music services.
+It provides a unified interface for working with music data across different platforms, including tracks, artists, albums, artwork, release dates, durations, and platform information.
 
-**Currently supported:** Spotify · Apple Music
+**Supported:** Spotify · Apple Music
 
 ---
 
 ## ✨ Features
 
-- 🎵 Track metadata
-- 🎤 Artist information
-- 💿 Album & release information
-- 🖼️ Artwork & multiple image sizes
-- 📅 Release date
-- ⏱️ Track duration
-- 🔞 Explicit status
-- 🔗 Platform URLs & IDs
-- 📦 JSON serialization
-- 🔄 Cross-provider metadata enrichment
-- 💻 CLI support
+| Feature | Status |
+|---|---|
+| Track metadata | ✅ |
+| Artist metadata | ✅ |
+| Album metadata | ✅ |
+| Artwork & images | ✅ |
+| Release date | ✅ |
+| Duration | ✅ |
+| Explicit status | ✅ |
+| Platform IDs & URLs | ✅ |
+| JSON serialization | ✅ |
+| Cross-provider enrichment | ✅ |
+| CLI | ✅ |
+| Interactive URL input | ✅ |
 
 ---
 
 ## 🧱 Architecture
 
-FetchTune uses a provider-based architecture. Each music platform has its own provider responsible for handling platform-specific URLs and responses.
+FetchTune uses a provider-based architecture. Each platform has its own provider responsible for resolving and normalizing platform-specific data.
 
 ```text
                          FetchTune
@@ -47,7 +50,7 @@ FetchTune uses a provider-based architecture. Each music platform has its own pr
                    Artist  Album  Track
 ```
 
-This keeps platform-specific logic separated from the core models and makes adding new providers straightforward.
+The core models remain platform-independent, making it possible to add new providers without changing the rest of the library.
 
 ---
 
@@ -63,8 +66,16 @@ pip install fetchtune
 
 ### CLI
 
+Pass a supported music URL:
+
 ```bash
 fetchtune "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
+```
+
+For JSON output:
+
+```bash
+fetchtune --json "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
 ```
 
 ### Python
@@ -82,17 +93,19 @@ print(track.to_json(indent=2))
 
 ---
 
-## 🎧 Example
+## 🎵 Example
 
-### Fooroodgah - HEEN's Reinterpretation
+FetchTune resolving a real Spotify track:
 
 <p align="center">
   <img
     src="https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b2739a1801fbe63582bc1b0678d9"
     width="320"
     alt="Fooroodgah - HEEN's Reinterpretation"
-  />
+  >
 </p>
+
+<h3 align="center">Fooroodgah - HEEN's Reinterpretation</h3>
 
 <p align="center">
   <strong>Mehrad Hidden · HEEN</strong>
@@ -100,33 +113,40 @@ print(track.to_json(indent=2))
 
 <p align="center">
   <a href="https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc">
-    Listen on Spotify ↗
+    Open on Spotify ↗
   </a>
 </p>
 
-### Track Metadata
+### Metadata
 
 | Field | Value |
 |---|---|
-| Title | Fooroodgah - HEEN's Reinterpretation |
-| Artists | Mehrad Hidden, HEEN |
-| Platform | Spotify |
-| Track ID | `4a0yULThaKQTm0hYPGEMOc` |
-| Release Date | `2026-08-28` |
-| Duration | `3:27` |
-| Duration (ms) | `207875` |
-| Explicit | `false` |
-| Album | `null` |
+| **Title** | `Fooroodgah - HEEN's Reinterpretation` |
+| **Artists** | Mehrad Hidden, HEEN |
+| **Platform** | Spotify |
+| **Track ID** | `4a0yULThaKQTm0hYPGEMOc` |
+| **Release Date** | `2026-08-28` |
+| **Duration** | `3:27` |
+| **Duration (ms)** | `207875` |
+| **Explicit** | `No` |
+| **Album** | `null` |
 
 ### Artists
 
-| Artist | ID |
+| Artist | Spotify ID |
 |---|---|
 | Mehrad Hidden | `0jCVTRvQkILbJvpviTpvd1` |
 | HEEN | `3dt8LORgsqjLP8hAYsFKdY` |
 
+### Artwork
 
-### Raw JSON
+| Size | URL |
+|---|---|
+| 640 × 640 | `https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b2739a1801fbe63582bc1b0678d9` |
+| 300 × 300 | `https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e029a1801fbe63582bc1b0678d9` |
+| 64 × 64 | `https://image-cdn-ak.spotifycdn.com/image/ab67616d000048519a1801fbe63582bc1b0678d9` |
+
+### JSON
 
 ```json
 {
@@ -173,11 +193,46 @@ print(track.to_json(indent=2))
 
 ---
 
+## 🔄 Album Enrichment
+
+FetchTune can enrich incomplete track metadata using other providers.
+
+For example:
+
+```json
+{
+  "album": null
+}
+```
+
+can potentially become:
+
+```json
+{
+  "album": {
+    "name": "Innerlight EP",
+    "id": "1582831419",
+    "release_date": "2021-07-30T12:00:00Z",
+    "total_tracks": 4
+  }
+}
+```
+
+This keeps the final `Track` model useful even when the original platform doesn't provide complete release information.
+
+---
+
 ## 🧪 Testing
+
+FetchTune includes tests for providers, models, resolver behavior, URL parsing, artwork handling, matching, enrichment, and serialization.
+
+Run the test suite:
 
 ```bash
 pytest
 ```
+
+Current status:
 
 ```text
 18 passed
@@ -185,19 +240,30 @@ pytest
 
 ---
 
-## 🗺️ Roadmap
+## 🛠️ Development
 
-- [x] Spotify provider
-- [x] Apple Music provider
-- [x] Unified track models
-- [x] Provider resolver
-- [x] Artwork handling
-- [x] Metadata enrichment
-- [x] JSON serialization
-- [x] CLI
-- [ ] More music providers
-- [ ] Async API
-- [ ] Improved metadata matching
+```bash
+git clone https://github.com/momalekiii/fetchtune.git
+cd fetchtune
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -e .
+pytest
+```
+
+Build the package:
+
+```bash
+python -m build
+```
+
+Check the distribution:
+
+```bash
+python -m twine check dist/*
+```
 
 ---
 
