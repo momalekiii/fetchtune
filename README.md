@@ -125,14 +125,6 @@ print(track.to_json(indent=2))
 | Mehrad Hidden | `0jCVTRvQkILbJvpviTpvd1` |
 | HEEN | `3dt8LORgsqjLP8hAYsFKdY` |
 
-### Artwork
-
-| Size | URL |
-|---|---|
-| 640 × 640 | Spotify CDN |
-| 300 × 300 | Spotify CDN |
-| 64 × 64 | Spotify CDN |
-
 ### Raw JSON
 
 ```json
@@ -221,4 +213,3 @@ MIT License
   <br><br>
   <sub>© @momalekiii · 2026</sub>
 </p>
-```
