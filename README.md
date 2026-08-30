@@ -382,7 +382,7 @@ See [`LICENSE`](LICENSE) for the full license text.
 
 ## 👤 Author
 
-**Mohammad Reza Maleki**
+**Mo**
 
 GitHub: [@momalekiii](https://github.com/momalekiii)
 
