@@ -280,4 +280,3 @@ MIT License
   <br><br>
   <sub>© @momalekiii · 2026</sub>
 </p>
-```
