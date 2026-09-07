@@ -1,11 +1,31 @@
-.venv/
+# Python
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Build
 build/
 dist/
 *.egg-info/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+
+# Type checking
+.mypy_cache/
+.pyright/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
 .DS_Store
-.env
