@@ -2,76 +2,63 @@ from fetchtune import resolve
 
 
 def main() -> None:
-    url = (
-        "https://open.spotify.com/"
-        "track/40tPP3K10yMZxwnT65REKj"
-    )
+    urls = [
+        # Spotify
+        "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc",
 
-    try:
-        track = resolve(url)
+        # Apple Music
+        "https://music.apple.com/tr/album/fooroodgah-heens-reinterpretation-single/6808031336",
 
-    except Exception as exc:
-        print(f"ERROR: {type(exc).__name__}")
-        print(exc)
-        return
+        # YouTube
+        "https://www.youtube.com/watch?v=vhptJ9FRYdE&list=RDvhptJ9FRYdE",
 
-    print("=" * 60)
-    print("FetchTune")
-    print("=" * 60)
+        # SoundCloud
+        "https://soundcloud.com/heenofficial/fooroodgahheensreinterpretation",
+    ]
 
-    print(f"Title:       {track.title}")
+    for url in urls:
+        print("=" * 60)
+        print("FetchTune v0.2.0")
+        print("=" * 60)
+        print(f"URL:         {url}")
+        print()
 
-    print(
-        "Artists:     "
-        + ", ".join(
-            artist.name
-            for artist in track.artists
-        )
-    )
+        try:
+            track = resolve(url)
 
-    if track.album:
+        except Exception as exc:
+            print(f"ERROR:       {type(exc).__name__}")
+            print(exc)
+            print()
+            continue
+
+        print(f"Title:       {track.title}")
+
         print(
-            f"Album:       {track.album.name}"
+            "Artists:     "
+            + ", ".join(
+                artist.name
+                for artist in track.artists
+            )
         )
-        print(
-            f"Album ID:    {track.album.id}"
-        )
-        print(
-            f"Album URL:   {track.album.url}"
-        )
-    else:
-        print("Album:       None")
 
-    print(
-        f"Duration:    "
-        f"{track.duration_ms} ms"
-    )
+        if track.album:
+            print(f"Album:       {track.album.name}")
+            print(f"Album ID:    {track.album.id}")
+            print(f"Album URL:   {track.album.url}")
+        else:
+            print("Album:       None")
 
-    print(
-        f"Explicit:    "
-        f"{track.is_explicit}"
-    )
+        print(f"Duration:    {track.duration_ms} ms")
+        print(f"Explicit:    {track.is_explicit}")
+        print(f"Platform:    {track.platform}")
+        print(f"Track ID:    {track.platform_id}")
+        print(f"Cover:       {track.cover_url}")
 
-    print(
-        f"Platform:    "
-        f"{track.platform}"
-    )
-
-    print(
-        f"Track ID:    "
-        f"{track.platform_id}"
-    )
-
-    print(
-        f"Cover:       "
-        f"{track.cover_url}"
-    )
-
-    print("=" * 60)
-
-    print()
-    print("JSON:")
-    print(track.to_json(indent=2))
+        print()
+        print("JSON:")
+        print(track.to_json(indent=2))
+        print()
 
 
 if __name__ == "__main__":
