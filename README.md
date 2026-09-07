@@ -6,7 +6,7 @@ FetchTune is a lightweight Python library and CLI for resolving music URLs into 
 
 It provides a unified interface for working with music data across different platforms, including tracks, artists, albums, artwork, release dates, durations, and platform information.
 
-**Supported:** Spotify · Apple Music
+**Supported:** Spotify · Apple Music · YouTube · SoundCloud
 
 ---
 
@@ -38,16 +38,16 @@ FetchTune uses a provider-based architecture. Each platform has its own provider
                             │
                          Resolver
                             │
-                ┌───────────┴───────────┐
-                │                       │
-        SpotifyProvider          AppleProvider
-                │                       │
-                └───────────┬───────────┘
-                            │
-                          Models
-                     ┌──────┼──────┐
-                     │      │      │
-                   Artist  Album  Track
+          ┌─────────────────┼─────────────────┐
+          │        │        │        │
+    SpotifyProvider  AppleProvider  YouTubeProvider  SoundCloudProvider
+          │        │        │        │
+          └────────┴────────┼────────┴────────┘
+                           │
+                         Models
+                    ┌──────┼──────┐
+                    │      │      │
+                  Artist  Album  Track
 ```
 
 The core models remain platform-independent, making it possible to add new providers without changing the rest of the library.
@@ -219,24 +219,6 @@ can potentially become:
 ```
 
 This keeps the final `Track` model useful even when the original platform doesn't provide complete release information.
-
----
-
-## 🧪 Testing
-
-FetchTune includes tests for providers, models, resolver behavior, URL parsing, artwork handling, matching, enrichment, and serialization.
-
-Run the test suite:
-
-```bash
-pytest
-```
-
-Current status:
-
-```text
-18 passed
-```
 
 ---
 
