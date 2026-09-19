@@ -30,7 +30,7 @@ def make_track(**kwargs) -> Track:
 
 
 def test_version_is_current():
-    assert fetchtune.__version__ == "0.3.1"
+    assert fetchtune.__version__ == "0.3.2"
 
 
 # ---------------------------------------------------------

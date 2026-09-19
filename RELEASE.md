@@ -1,69 +1,55 @@
-# Releasing FetchTune v0.3.0
+# Releasing FetchTune v0.3.2
 
-The working tree is release-ready: all fixes are in, 74 tests pass
-(including against the built wheel in a clean venv), and the
-distribution is already built and twine-checked in `release-artifacts/`.
+Complete tree (every core module in the wheel). Do **not** overlay a
+partial zip — that is how 0.3.0 lost `models.py` / `spotify.py`.
 
-## What changed in 0.3.0
+PyPI already has 0.3.0 and 0.3.1. This release **must** be `0.3.2`.
 
-### Fixed (all verified live)
-
-| Bug | Impact before | Fix |
-|---|---|---|
-| `_build_track` passed `duration_seconds=` to `Track()` | **Every Apple Music URL crashed** | kwarg removed (`providers/apple.py`) |
-| Resolver called `get_album(duration_ms=…, release_date=…)` with an incompatible signature | **Album enrichment never ran** (silently) | `get_album` now accepts and uses both kwargs |
-| SoundCloud provider imported `requests`, not declared in pyproject | **`resolve()` crashed on clean installs** (`ModuleNotFoundError`) | provider rewritten with stdlib `urllib` — FetchTune is dependency-free |
-| `__version__` said `0.1.0` | misleading version reports | now `0.3.0` |
-| YouTube `track.url` echoed raw input | URLs kept `&list=…` radio params | canonical `watch?v=<id>` |
-| SoundCloud titles carried `" by <artist>"` | polluted titles/filenames | clean title from api-v2 / suffix stripped on oEmbed fallback |
-
-### Added
-
-- `fetchtune download` — optional downloader (`pip install fetchtune[downloader]`):
-  yt-dlp audio fetch (direct for YouTube/SoundCloud, scored search for
-  Spotify/Apple), ffmpeg conversion, mutagen metadata + cover embedding.
-- SoundCloud api-v2 metadata: duration, release date, 500x500 artwork
-  (client_id discovery with caching, oEmbed fallback).
-- YouTube best-effort duration + release date from the watch page.
-- `fetchtune --version`, `fetchtune resolve` subcommand (bare-URL form unchanged).
-- Library API: `fetchtune.downloader.Downloader`.
-- 23 new tests (regression tests for every fix above).
-
-## Steps left (need your credentials)
+## GitHub
 
 ```bash
-cd fetchtune
+cd /path/to/fetchtune
+# unzip fetchtune-v0.3.2-FULL.zip here (overwrite)
 
-# 1. Review
-git diff
-git status
+ls src/fetchtune/models.py \
+   src/fetchtune/resolver.py \
+   src/fetchtune/exceptions.py \
+   src/fetchtune/providers/spotify.py \
+   src/fetchtune/providers/base.py
 
-# 2. Commit, tag, push
 git add -A
-git commit -m "release: v0.3.0"
-git tag v0.3.0
-git push origin main --tags
-
-# 3. Publish to PyPI
-pip install -U build twine
-python -m build                      # or reuse release-artifacts/
-twine check dist/*
-twine upload dist/*
-
-# 4. Verify (fresh venv)
-python -m venv /tmp/v && /tmp/v/bin/pip install "fetchtune[downloader]"
-/tmp/v/bin/fetchtune --version       # → 0.3.0
-/tmp/v/bin/fetchtune "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
-
-# 5. GitHub release
-#    Create a release for the v0.3.0 tag; paste the 0.3.0 section of
-#    CHANGELOG.md as the release notes. Attach the dist files if you like.
+git status
+git commit -m "release: v0.3.2"
+git push origin main
+git tag v0.3.2
+git push origin v0.3.2
 ```
 
-## Optional follow-ups (not in this release)
+## PyPI
 
-- Split `Track.images` dicts into a typed `Image` model (breaking change —
-  consider for 0.4.0).
-- `Track.genre` field (available from Spotify/Apple/SC payloads).
-- YouTube Music distinction (`platform="youtube-music"`).
-- Playlists/albums resolution (currently track URLs only).
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -U build twine
+rm -rf dist build
+python -m build
+twine check dist/*
+
+python -c "import zipfile,glob; z=zipfile.ZipFile(glob.glob('dist/*.whl')[0]); print('\n'.join(sorted(z.namelist())))"
+# MUST include: models.py resolver.py exceptions.py providers/spotify.py
+
+twine upload dist/*
+```
+
+`~/.pypirc` username is `__token__` (not your PyPI name).
+
+A 400 "File already exists" means that version is already on PyPI —
+do not re-upload; bump the version instead.
+
+## After upload
+
+```bash
+pip uninstall -y fetchtune
+pip install -U 'fetchtune[downloader]==0.3.2'
+fetchtune --version    # fetchtune 0.3.2
+```

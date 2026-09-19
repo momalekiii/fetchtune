@@ -2,6 +2,18 @@
 
 All notable changes to FetchTune are documented here.
 
+## [0.3.2] - 2026-09-19
+
+### Fixed
+
+- Complete, re-publishable release after 0.3.0/0.3.1 packaging issues.
+  Wheel always includes `models`, `resolver`, `exceptions`, and every
+  provider (`spotify`, `apple`, `youtube`, `soundcloud`).
+- `fetchtune download` reports the real resolve error instead of a
+  generic "Could not resolve this URL".
+- Spotify oEmbed fallback when the embed page has no `__NEXT_DATA__`.
+- Markdown links and `spotify:track:` URIs are normalized before resolve.
+
 ## [0.3.1] - 2026-09-19
 
 ### Fixed
