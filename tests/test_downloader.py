@@ -10,6 +10,7 @@ from fetchtune.downloader import (
     _clean_title,
     _pick_cover_url,
     _score_candidate,
+    _search_queries,
     sanitize,
 )
 
@@ -30,7 +31,7 @@ def make_track(**kwargs) -> Track:
 
 
 def test_version_is_current():
-    assert fetchtune.__version__ == "0.3.2"
+    assert fetchtune.__version__ == "0.3.3"
 
 
 # ---------------------------------------------------------
@@ -52,6 +53,13 @@ def test_clean_title_strips_by_suffix():
     track = make_track(title="Carefree by Kevin MacLeod")
 
     assert _clean_title(track) == "Carefree"
+
+
+def test_search_queries_fallbacks():
+    track = make_track()
+    queries = _search_queries(track)
+    assert queries[0] == "Kevin MacLeod Carefree"
+    assert "Carefree" in queries
 
 
 def test_clean_title_keeps_plain_titles():

@@ -334,17 +334,41 @@ def _search_platform(
     return results
 
 
+def _search_queries(track: TrackModel) -> list[str]:
+    """Try artist+title, first artist+title, then title only."""
+    title = _clean_title(track)
+    artists = _artists_string(track)
+    first = track.artists[0].name if track.artists else ""
+    queries: list[str] = []
+    for raw in (f"{artists} {title}", f"{first} {title}", title):
+        query = re.sub(r"\s+", " ", raw).strip()
+        if query and query not in queries:
+            queries.append(query)
+    return queries
+
+
 def _find_best_match(
     track: TrackModel,
     platform: str,
 ) -> tuple[Candidate, list[Candidate]] | None:
     """Search one platform; return (best, all) candidates by score."""
-    query = f"{_artists_string(track)} {_clean_title(track)}".strip()
+    found: list[Candidate] = []
+    seen: set[str] = set()
 
-    try:
-        found = _search_platform(query, platform)
-    except Exception:
-        return None
+    for query in _search_queries(track):
+        try:
+            batch = _search_platform(query, platform)
+        except Exception:
+            continue
+
+        for candidate in batch:
+            if candidate.url in seen:
+                continue
+            seen.add(candidate.url)
+            found.append(candidate)
+
+        if found:
+            break
 
     if not found:
         return None
@@ -530,6 +554,7 @@ class Downloader:
             match = _find_best_match(track, platform)
 
             if not match:
+                self._log(f"  no results on {platform}")
                 continue
 
             best, candidates = match

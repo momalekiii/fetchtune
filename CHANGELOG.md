@@ -2,6 +2,21 @@
 
 All notable changes to FetchTune are documented here.
 
+## [0.3.3] - 2026-09-19
+
+### Fixed
+
+- Search fallback: if `artist + title` returns nothing, retry with
+  first-artist + title, then title only.
+- Log `no results on {platform}` instead of failing silently when a
+  search source is empty (e.g. Spotify track not on SoundCloud).
+
+### Verified (PyPI 0.3.2 live)
+
+- Spotify, YouTube, SoundCloud, and Apple Music resolve.
+- Direct YouTube + SoundCloud downloads, Spotify→YouTube search, and
+  Apple→SoundCloud search all produced tagged mp3s.
+
 ## [0.3.2] - 2026-09-19
 
 ### Fixed
