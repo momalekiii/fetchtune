@@ -11,6 +11,10 @@ All notable changes to FetchTune are documented here.
   `exceptions.py`, `providers/base.py`, `providers/spotify.py`,
   `providers/__init__.py`). `pip install fetchtune` crashed with
   `ModuleNotFoundError: No module named 'fetchtune.models'`.
+- `fetchtune download` no longer swallows resolve errors (the generic
+  "Could not resolve this URL" message hid the real cause).
+- Spotify: fall back to oEmbed when the embed page has no `__NEXT_DATA__`.
+- URLs wrapped in markdown / `spotify:track:` URIs now resolve.
 
 ## [0.3.0] - 2026-09-19
 

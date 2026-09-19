@@ -30,8 +30,9 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from fetchtune import Track, try_resolve
+from fetchtune import Track, resolve
 from fetchtune.models import Track as TrackModel
+from fetchtune.resolver import ResolverError, normalize_url
 
 __all__ = [
     "AUDIO_FORMATS",
@@ -442,24 +443,23 @@ class Downloader:
         Raises DownloadError when no audio could be fetched.
         """
 
-        track = try_resolve(url)
+        url = normalize_url(url)
 
-        if track is None:
+        try:
+            track = resolve(url)
+        except ResolverError as exc:
             direct = _direct_provider(url)
 
             if direct:
                 self._log(
-                    "FetchTune could not resolve this URL — "
+                    f"FetchTune could not resolve this URL ({exc}) — "
                     "falling back to a plain yt-dlp download."
                 )
                 return self._download_raw(url)
 
             raise DownloadError(
-                "Could not resolve this URL with FetchTune, and it is "
-                "not a direct YouTube/SoundCloud link either. "
-                "Supported: Spotify, Apple Music, YouTube, SoundCloud "
-                "track URLs."
-            )
+                f"Could not resolve this URL: {exc}"
+            ) from exc
 
         return self._download_track(url, track)
 

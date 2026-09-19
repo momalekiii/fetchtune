@@ -57,10 +57,21 @@ class SpotifyProvider(Provider):
         except Exception:
             return False
 
-        return (
+        host = parsed.netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+
+        if (
             parsed.scheme.lower() in {"http", "https"}
-            and parsed.netloc.lower() in self.SPOTIFY_HOSTS
+            and host in self.SPOTIFY_HOSTS
             and bool(self.TRACK_ID_RE.search(parsed.path))
+        ):
+            return True
+
+        # intl-xx paths, extra junk, or copy-paste leftovers
+        return (
+            "spotify.com" in url.lower()
+            and bool(self.TRACK_ID_RE.search(url))
         )
 
     def resolve(self, url: str) -> Track:
@@ -74,15 +85,23 @@ class SpotifyProvider(Provider):
 
         track_id = self._extract_track_id(url)
 
-        html = self._fetch_embed(track_id)
-
-        data = self._extract_next_data(html)
-
-        entity = self._find_entity(data)
+        try:
+            html = self._fetch_embed(track_id)
+            data = self._extract_next_data(html)
+            entity = self._find_entity(data)
+        except SpotifyResolverError:
+            entity = None
 
         if not entity:
+            oembed = self._fetch_oembed(track_id)
+            if oembed:
+                return self._build_track_from_oembed(
+                    oembed=oembed,
+                    track_id=track_id,
+                )
             raise SpotifyResolverError(
-                "Could not find Spotify track entity."
+                "Could not find Spotify track entity "
+                "(embed page and oEmbed both failed)."
             )
 
         return self._build_track(
@@ -176,6 +195,70 @@ class SpotifyProvider(Provider):
                 "utf-8",
                 errors="replace",
             )
+
+    @classmethod
+    def _fetch_oembed(cls, track_id: str) -> dict[str, Any] | None:
+        url = (
+            "https://open.spotify.com/oembed"
+            f"?url=https://open.spotify.com/track/{track_id}"
+        )
+        request = Request(
+            url,
+            headers={
+                "User-Agent": "fetchtune/0.3",
+                "Accept": "application/json",
+            },
+            method="GET",
+        )
+        try:
+            with urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception:
+            return None
+
+        if not isinstance(payload, dict) or not payload.get("title"):
+            return None
+        return payload
+
+    @classmethod
+    def _build_track_from_oembed(
+        cls,
+        oembed: dict[str, Any],
+        track_id: str,
+    ) -> Track:
+        title = str(oembed.get("title") or "").strip()
+        author = str(oembed.get("author_name") or "").strip()
+        thumbnail = oembed.get("thumbnail_url")
+
+        artists = []
+        if author:
+            artists.append(Artist(name=author))
+        else:
+            artists.append(Artist(name="Unknown Artist"))
+
+        images = []
+        if thumbnail:
+            images.append(
+                {
+                    "url": str(thumbnail),
+                    "width": oembed.get("thumbnail_width"),
+                    "height": oembed.get("thumbnail_height"),
+                }
+            )
+
+        return Track(
+            title=title or "Unknown Title",
+            artists=artists,
+            album=None,
+            cover_url=str(thumbnail) if thumbnail else None,
+            images=images,
+            release_date=None,
+            duration_ms=None,
+            is_explicit=False,
+            platform="spotify",
+            platform_id=track_id,
+            url=f"https://open.spotify.com/track/{track_id}",
+        )
 
     # =========================================================
     # NEXT DATA

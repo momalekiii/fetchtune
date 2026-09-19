@@ -169,3 +169,12 @@ def test_enrichment_fills_missing_album():
 
     assert enriched.album is not None
     assert enriched.album.name == "Enriched Album"
+
+
+def test_normalize_url_markdown_and_uri():
+    from fetchtune.resolver import normalize_url
+
+    bare = "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
+    assert normalize_url(f"[{bare}]({bare})") == bare
+    assert normalize_url(f"<{bare}>") == bare
+    assert normalize_url("spotify:track:4a0yULThaKQTm0hYPGEMOc") == bare

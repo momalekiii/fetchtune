@@ -29,8 +29,8 @@ def make_track(**kwargs) -> Track:
 # ---------------------------------------------------------
 
 
-def test_version_is_0_3_0():
-    assert fetchtune.__version__ == "0.3.0"
+def test_version_is_current():
+    assert fetchtune.__version__ == "0.3.1"
 
 
 # ---------------------------------------------------------

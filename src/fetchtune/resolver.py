@@ -1,9 +1,37 @@
 from __future__ import annotations
 
+import re
 from typing import Iterable
+from urllib.parse import unquote
 
 from fetchtune.models import Track
 from fetchtune.providers.base import Provider
+
+
+_MD_LINK = re.compile(r"\[(?:[^\]]*)\]\((https?://[^)\s]+)\)")
+_ANGLE = re.compile(r"<(https?://[^>\s]+)>")
+_SPOTIFY_URI = re.compile(r"^spotify:track:([A-Za-z0-9]{22})$", re.IGNORECASE)
+
+
+def normalize_url(url: str) -> str:
+    """Strip copy-paste junk (quotes, markdown links) into a bare URL."""
+    url = unquote(url.strip().strip("'\""))
+
+    match = _MD_LINK.search(url)
+    if match:
+        url = match.group(1)
+
+    match = _ANGLE.search(url)
+    if match:
+        url = match.group(1)
+
+    url = url.strip()
+
+    match = _SPOTIFY_URI.match(url)
+    if match:
+        return f"https://open.spotify.com/track/{match.group(1)}"
+
+    return url
 
 
 class ResolverError(Exception):
@@ -67,7 +95,7 @@ class Resolver:
         if not isinstance(url, str):
             raise TypeError("URL must be a string.")
 
-        url = url.strip()
+        url = normalize_url(url)
 
         if not url:
             raise ResolverError("URL cannot be empty.")
@@ -225,26 +253,23 @@ def get_default_resolver() -> Resolver:
     if _default_resolver is None:
         from fetchtune.providers.apple import AppleProvider
         from fetchtune.providers.soundcloud import SoundCloudProvider
-        from fetchtune.providers.spotify import SpotifyProvider
         from fetchtune.providers.youtube import YouTubeProvider
 
         _default_resolver = Resolver(enrichment=True)
 
-        _default_resolver.register(
-            SpotifyProvider()
-        )
+        try:
+            from fetchtune.providers.spotify import SpotifyProvider
+            _default_resolver.register(SpotifyProvider())
+        except ImportError as exc:
+            raise ResolverError(
+                "Spotify provider is missing from this install. "
+                "This is the broken 0.3.0 wheel — upgrade to 0.3.1+: "
+                "pip install -U fetchtune"
+            ) from exc
 
-        _default_resolver.register(
-            AppleProvider()
-        )
-
-        _default_resolver.register(
-            YouTubeProvider()
-        )
-
-        _default_resolver.register(
-            SoundCloudProvider()
-        )
+        _default_resolver.register(AppleProvider())
+        _default_resolver.register(YouTubeProvider())
+        _default_resolver.register(SoundCloudProvider())
 
     return _default_resolver
 
