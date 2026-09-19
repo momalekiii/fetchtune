@@ -2,6 +2,16 @@
 
 All notable changes to FetchTune are documented here.
 
+## [0.3.1] - 2026-09-19
+
+### Fixed
+
+- Restored core modules that were accidentally omitted from the
+  `0.3.0` GitHub tree and PyPI wheel (`models.py`, `resolver.py`,
+  `exceptions.py`, `providers/base.py`, `providers/spotify.py`,
+  `providers/__init__.py`). `pip install fetchtune` crashed with
+  `ModuleNotFoundError: No module named 'fetchtune.models'`.
+
 ## [0.3.0] - 2026-09-19
 
 ### Added
