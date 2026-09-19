@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fetchtune"
-version = "0.2.0"
+version = "0.3.0"
 description = "Universal music metadata resolver for Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -50,6 +50,17 @@ classifiers = [
 Homepage = "https://github.com/momalekiii/fetchtune"
 Repository = "https://github.com/momalekiii/fetchtune"
 Issues = "https://github.com/momalekiii/fetchtune/issues"
+
+[project.optional-dependencies]
+# `pip install fetchtune[downloader]` — enables `fetchtune download`
+# (the core library stays dependency-free)
+downloader = [
+    "yt-dlp>=2025.1.1",
+    "mutagen>=1.47",
+]
+dev = [
+    "pytest>=8.0",
+]
 
 [project.scripts]
 fetchtune = "fetchtune.cli:main"

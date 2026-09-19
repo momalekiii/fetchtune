@@ -157,6 +157,15 @@ def test_resolve(monkeypatch):
         lambda url: metadata,
     )
 
+    monkeypatch.setattr(
+        provider,
+        "_fetch_watch_data",
+        lambda video_id: {
+            "duration_ms": 213000,
+            "release_date": "2009-10-25",
+        },
+    )
+
     track = provider.resolve(
         "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     )
@@ -166,6 +175,11 @@ def test_resolve(monkeypatch):
     assert track.artists[0].name == "Rick Astley"
     assert track.platform == "youtube"
     assert track.platform_id == "dQw4w9WgXcQ"
+    assert track.duration_ms == 213000
+    assert track.release_date == "2009-10-25"
+    assert track.url == (
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    )
 
 
 def test_resolve_music_url(monkeypatch):
@@ -183,6 +197,12 @@ def test_resolve_music_url(monkeypatch):
         },
     )
 
+    monkeypatch.setattr(
+        provider,
+        "_fetch_watch_data",
+        lambda video_id: None,
+    )
+
     track = provider.resolve(
         "https://music.youtube.com/watch?v=dQw4w9WgXcQ"
     )
@@ -192,6 +212,35 @@ def test_resolve_music_url(monkeypatch):
     assert track.artists[0].name == "Test Artist"
     assert track.platform == "youtube"
     assert track.platform_id == "dQw4w9WgXcQ"
+    assert track.duration_ms is None
+
+
+def test_resolve_canonicalizes_url(monkeypatch):
+    provider = YouTubeProvider()
+
+    monkeypatch.setattr(
+        provider,
+        "_fetch_oembed",
+        lambda url: {
+            "title": "Test Song",
+            "author_name": "Test Artist",
+        },
+    )
+
+    monkeypatch.setattr(
+        provider,
+        "_fetch_watch_data",
+        lambda video_id: None,
+    )
+
+    track = provider.resolve(
+        "https://www.youtube.com/watch?"
+        "v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ"
+    )
+
+    assert track.url == (
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    )
 
 
 def test_resolve_requires_title(monkeypatch):

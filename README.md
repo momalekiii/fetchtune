@@ -26,6 +26,7 @@ It provides a unified interface for working with music data across different pla
 | Cross-provider enrichment | ✅ |
 | CLI | ✅ |
 | Interactive URL input | ✅ |
+| Audio download *(optional extra)* | ✅ |
 
 ---
 
@@ -60,6 +61,12 @@ The core models remain platform-independent, making it possible to add new provi
 pip install fetchtune
 ```
 
+Optional — enable the downloader (see below):
+
+```bash
+pip install "fetchtune[downloader]"
+```
+
 ---
 
 ## 🚀 Usage
@@ -78,6 +85,14 @@ For JSON output:
 fetchtune --json "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
 ```
 
+Download a track as a tagged audio file (requires the `downloader` extra
+and **ffmpeg** on your PATH):
+
+```bash
+fetchtune download "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
+fetchtune download -f flac -o ~/Music "https://music.apple.com/us/album/carefree/1887648284?i=1887648293"
+```
+
 ### Python
 
 ```python
@@ -90,6 +105,57 @@ track = resolve(
 print(track.title)
 print(track.to_json(indent=2))
 ```
+
+---
+
+## ⬇️ Downloader (optional)
+
+`fetchtune[downloader]` adds `fetchtune download` — turn any resolved
+track URL into a tagged audio file with embedded cover art.
+
+```
+             your URL (spotify / apple / youtube / soundcloud)
+                            │
+                       FetchTune ─── resolves title, artists, album,
+                            │        duration, artwork, release date
+              ┌─────────────┴─────────────┐
+     youtube/soundcloud links      spotify/apple links
+     download the original        search YouTube (fallback
+              │                   SoundCloud), score candidates,
+              │                   pick the best match
+              └─────────────┬─────────────┘
+                        yt-dlp + ffmpeg ─── download & convert
+                            │
+                          mutagen ─── embed metadata + cover art
+                            │
+                  🎵 "Artist - Title.mp3"
+```
+
+```bash
+pip install "fetchtune[downloader]"   # + ffmpeg on your PATH
+
+fetchtune download "https://open.spotify.com/track/..."
+fetchtune download -f flac -b 320 -o ~/Music url1 url2
+fetchtune download --force-search --search-source soundcloud url
+```
+
+Options: `-o` output dir · `-f` format (`mp3` `m4a` `flac` `opus` `ogg`
+`wav` `keep`) · `-b` bitrate · `--search-source` · `--force-search` ·
+`--no-cover` · `--no-tags` · `--overwrite`
+
+Python API:
+
+```python
+from fetchtune.downloader import Downloader
+
+dl = Downloader(output="downloads", audio_format="mp3")
+path = dl.download("https://open.spotify.com/track/...")
+```
+
+Spotify and Apple Music expose no audio streams, so audio for those links
+is fetched from a streamable platform (YouTube/SoundCloud) identified via
+FetchTune metadata. Please use it responsibly — only for content you own
+or that is freely licensed, and respect platform terms of service.
 
 ---
 

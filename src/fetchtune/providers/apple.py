@@ -127,10 +127,13 @@ class AppleProvider(Provider):
         self,
         title: str,
         artists: list[str],
+        duration_ms: int | None = None,
+        release_date: str | None = None,
     ) -> Album | None:
         result = self.search_track(
             title=title,
             artists=artists,
+            duration_ms=duration_ms,
         )
 
         if not result:
@@ -482,11 +485,6 @@ class AppleProvider(Provider):
                 "releaseDate"
             ),
             duration_ms=duration_ms,
-            duration_seconds=(
-                duration_ms / 1000
-                if duration_ms is not None
-                else None
-            ),
             is_explicit=(
                 result.get(
                     "trackExplicitness"

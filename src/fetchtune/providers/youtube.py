@@ -101,14 +101,116 @@ class YouTubeProvider(Provider):
             "thumbnail_url"
         )
 
+        # -----------------------------------------------------
+        # Best-effort extras from the watch page. Never fatal:
+        # falls back to None when YouTube blocks the request
+        # (datacenter IPs, rate limits, …).
+        # -----------------------------------------------------
+
+        watch_data = self._fetch_watch_data(video_id)
+
+        duration_ms = None
+        release_date = None
+
+        if watch_data:
+            duration_ms = watch_data.get("duration_ms")
+            release_date = watch_data.get("release_date")
+
+        # -----------------------------------------------------
+        # Canonical URL — the raw input may carry playlist / radio
+        # parameters (&list=…, &t=…, …) that are not part of the
+        # video identity.
+        # -----------------------------------------------------
+
+        canonical_url = (
+            "https://www.youtube.com/"
+            f"watch?v={video_id}"
+        )
+
         return Track(
             title=title,
             artists=artists,
             cover_url=thumbnail_url,
+            duration_ms=duration_ms,
+            release_date=release_date,
             platform=self.name,
             platform_id=video_id,
-            url=url,
+            url=canonical_url,
         )
+
+    # =========================================================
+    # Watch page extras
+    # =========================================================
+
+    LENGTH_RE = re.compile(
+        r'"lengthSeconds"\s*:\s*"?(\d+)"?'
+    )
+
+    DATE_RE = re.compile(
+        r'"(publishDate|uploadDate)"\s*:\s*"(\d{4}-\d{2}-\d{2})'
+    )
+
+    @classmethod
+    def _fetch_watch_data(
+        cls,
+        video_id: str,
+    ) -> dict | None:
+        """
+        Fetch duration and release date for a video from its watch page.
+
+        Returns None when the page cannot be fetched or parsed — callers
+        must treat this as optional data.
+        """
+
+        url = (
+            "https://www.youtube.com/"
+            f"watch?v={video_id}"
+        )
+
+        request = Request(
+            url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 "
+                    "(Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) "
+                    "Chrome/139.0.0.0 Safari/537.36"
+                ),
+                "Accept-Language": "en-US,en;q=0.9",
+            },
+            method="GET",
+        )
+
+        try:
+            with urlopen(
+                request,
+                timeout=20,
+            ) as response:
+                html = response.read().decode(
+                    "utf-8",
+                    errors="replace",
+                )
+
+        except Exception:
+            return None
+
+        data: dict = {}
+
+        length = cls.LENGTH_RE.search(html)
+
+        if length:
+            seconds = int(length.group(1))
+
+            if seconds > 0:
+                data["duration_ms"] = seconds * 1000
+
+        date = cls.DATE_RE.search(html)
+
+        if date:
+            data["release_date"] = date.group(2)
+
+        return data or None
 
     # =========================================================
     # URL

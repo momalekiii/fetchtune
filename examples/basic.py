@@ -1,4 +1,5 @@
 from fetchtune import resolve
+import fetchtune
 
 
 def main() -> None:
@@ -18,7 +19,8 @@ def main() -> None:
 
     for url in urls:
         print("=" * 60)
-        print("FetchTune v0.2.0")
+
+        print(f"FetchTune v{fetchtune.__version__}")
         print("=" * 60)
         print(f"URL:         {url}")
         print()

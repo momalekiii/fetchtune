@@ -122,3 +122,50 @@ def test_provider_info():
         info[0]["class"]
         == "FakeProvider"
     )
+
+
+class FakeAppleProvider(FakeProvider):
+    """Apple-like provider whose get_album uses the resolver kwargs."""
+
+    name = "apple"
+
+    def get_album(
+        self,
+        title,
+        artists,
+        duration_ms=None,
+        release_date=None,
+    ):
+        if duration_ms is None:
+            return None
+
+        from fetchtune.models import Album
+
+        return Album(
+            name="Enriched Album",
+            id="1",
+        )
+
+
+def test_enrichment_fills_missing_album():
+    """Regression test: enrichment used to crash silently because the
+    resolver passed kwargs get_album() did not accept."""
+    resolver = Resolver(
+        providers=[FakeAppleProvider()],
+    )
+
+    track = Track(
+        title="Test Track",
+        artists=[Artist(name="Test Artist")],
+        duration_ms=200000,
+        platform="fake",
+        platform_id="123",
+    )
+
+    enriched = resolver._enrich_track(
+        track=track,
+        source_provider=FakeAppleProvider(),
+    )
+
+    assert enriched.album is not None
+    assert enriched.album.name == "Enriched Album"
