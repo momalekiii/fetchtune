@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FetchTune — music metadata, resolved</title>
-  <meta name="description" content="Universal music metadata resolver for Python. Spotify, Apple Music, YouTube, SoundCloud. Powered by FetchTune." />
+  <meta name="description" content="Universal music metadata resolver for Python. Spotify, Apple Music, YouTube, SoundCloud." />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <style>
     :root {
@@ -14,8 +14,6 @@
       --line: rgba(255, 255, 255, 0.14);
       --glass: rgba(255, 255, 255, 0.06);
       --glass2: rgba(255, 255, 255, 0.1);
-      --accent: #c8f4ff;
-      --accent2: #e8d5ff;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { min-height: 100%; }
@@ -73,22 +71,18 @@
       background: var(--glass);
       border: 1px solid var(--line);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       color: var(--ink);
-      transition: transform .2s ease, background .2s ease;
     }
-    .btn:hover { transform: translateY(-1px); background: var(--glass2); }
     .btn.solid {
       background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(230,240,255,0.72));
       color: #111318; border-color: rgba(255,255,255,0.55);
       font-weight: 640;
     }
-    hero { display: block; padding: 88px 8px 40px; text-align: center; }
+    hero { display: block; padding: 88px 8px 36px; text-align: center; }
     .kicker {
-      display: inline-flex; gap: 8px; align-items: center;
-      font-size: 12px; color: var(--muted); padding: 6px 12px; border-radius: 999px;
+      display: inline-flex; font-size: 12px; color: var(--muted);
+      padding: 6px 12px; border-radius: 999px;
       border: 1px solid var(--line); background: var(--glass);
-      backdrop-filter: blur(16px);
     }
     h1 {
       font-size: clamp(42px, 8vw, 76px); font-weight: 620; line-height: 0.98;
@@ -108,79 +102,33 @@
       -webkit-backdrop-filter: blur(32px) saturate(170%);
       box-shadow: 0 20px 60px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16);
     }
-    .panel { padding: 22px; margin-top: 18px; }
-    .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.03em; }
-    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-top: 22px; }
+    .shot {
+      margin-top: 8px; padding: 10px; overflow: hidden;
+    }
+    .shot img {
+      display: block; width: 100%; height: auto; border-radius: 20px;
+    }
+    .panel { padding: 22px; margin-top: 16px; }
+    .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
     @media (max-width: 760px) {
-      .grid { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr 1fr; }
       nav { display: none; }
     }
-    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-    .field {
-      display: flex; gap: 8px; padding: 8px; border-radius: 18px;
-      border: 1px solid var(--line); background: rgba(0,0,0,0.22);
-    }
-    .field input {
-      flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink);
-      font: inherit; font-size: 14px; padding: 10px 12px;
-    }
-    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    pre {
-      background: rgba(0,0,0,0.35); border: 1px solid var(--line);
-      border-radius: 16px; padding: 14px 16px; font-size: 12.5px;
-      overflow: auto; color: #e8eefc; line-height: 1.5;
-    }
-    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
-    @media (max-width: 760px) { .cards { grid-template-columns: 1fr 1fr; } }
     .card {
-      padding: 16px; border-radius: 20px; min-height: 108px;
+      padding: 16px; border-radius: 20px;
       background: rgba(255,255,255,0.04); border: 1px solid var(--line);
     }
     .card b { display: block; font-size: 13px; margin-bottom: 6px; }
     .card span { font-size: 12px; color: var(--muted); line-height: 1.4; }
-    .downloads { display: grid; gap: 10px; }
-    .dl {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 14px 16px; border-radius: 18px; text-decoration: none; color: inherit;
-      border: 1px solid var(--line); background: rgba(255,255,255,0.04);
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre {
+      background: rgba(0,0,0,0.35); border: 1px solid var(--line);
+      border-radius: 16px; padding: 14px 16px; font-size: 12.5px;
+      overflow: auto; color: #e8eefc; line-height: 1.55;
     }
-    .dl small { color: var(--muted); display: block; font-size: 11px; margin-top: 2px; }
-    footer {
-      margin-top: 48px; text-align: center; color: var(--muted); font-size: 12px;
-    }
+    footer { margin-top: 48px; text-align: center; color: var(--muted); font-size: 12px; }
     footer a { color: var(--ink); }
-    .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.45; }
-    .ok { font-size: 12px; color: #b8ffd4; min-height: 16px; margin-top: 8px; }
-    .demo {
-      display: grid; grid-template-columns: 160px 1fr; gap: 18px; align-items: center;
-    }
-    @media (max-width: 760px) { .demo { grid-template-columns: 1fr; } }
-    .cover {
-      width: 160px; height: 160px; border-radius: 22px; object-fit: cover;
-      border: 1px solid var(--line);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
-    }
-    .cover-ph {
-      width: 160px; height: 160px; border-radius: 22px;
-      background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.04));
-      border: 1px solid var(--line);
-    }
-    .meta b { font-size: 18px; letter-spacing: -0.04em; }
-    .meta p { color: var(--muted); font-size: 13px; margin: 6px 0 14px; }
-    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pill {
-      font-size: 11px; padding: 5px 10px; border-radius: 999px;
-      border: 1px solid var(--line); background: rgba(255,255,255,0.05); color: var(--muted);
-    }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
-    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
-    .step { padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: rgba(0,0,0,0.18); }
-    .step em { display: block; font-style: normal; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    .bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,0.08); overflow: hidden; margin: 12px 0 4px; }
-    .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #c8f4ff, #e8d5ff); transition: width .35s ease; }
-    .result { display: none; margin-top: 16px; }
-    .result.on { display: block; }
-    .status { font-size: 12px; color: var(--muted); min-height: 18px; }
   </style>
 </head>
 <body>
@@ -193,8 +141,7 @@
     <header>
       <div class="brand"><div class="mark">♪</div> FetchTune</div>
       <nav>
-        <a href="#cli">CLI</a>
-        <a href="#download">Download</a>
+        <a href="#how">How it works</a>
         <a href="https://github.com/momalekiii/fetchtune">GitHub</a>
         <a href="https://github.com/momalekiii/fetchtunebot">Bot</a>
       </nav>
@@ -204,80 +151,32 @@
     <hero>
       <div class="kicker">v0.3.3 · MIT · Python 3.10+</div>
       <h1><span>Music metadata,<br>resolved.</span></h1>
-      <p class="lede">Resolve any track URL into clean metadata. Then download a tagged audio file with yt-dlp — FetchTune picks the match, your computer does the fetch.</p>
+      <p class="lede">One Python library for Spotify, Apple Music, YouTube, and SoundCloud. URL in — title, artists, cover, duration, IDs out. Optional tagged audio via yt-dlp on your machine.</p>
       <div class="row">
         <a class="btn solid" href="https://github.com/momalekiii/fetchtune">Open library</a>
         <a class="btn" href="https://github.com/momalekiii/fetchtunebot">Telegram bot</a>
       </div>
     </hero>
 
-    <section class="glass panel" id="demo" style="margin-top:8px">
-      <h2>Capability demo <span class="pill" style="margin-left:8px">presentation · sample track</span></h2>
-      <label>Paste any music URL — this walkthrough uses the FetchTune README sample (no live stream fetch).</label>
-      <div class="field">
-        <input id="url" type="url" placeholder="https://open.spotify.com/track/…" autocomplete="off" />
-        <button class="btn" type="button" id="sample">Sample</button>
-        <button class="btn solid" type="button" id="run">Resolve</button>
-      </div>
-      <div class="bar"><i id="prog"></i></div>
-      <p class="status" id="status">Idle.</p>
-      <div class="result" id="result">
-        <div class="demo">
-          <img class="cover" id="cover" alt="cover" src="" />
-          <div class="meta">
-            <b id="title">—</b>
-            <p id="sub">—</p>
-            <div class="pills" id="pills"></div>
-            <div class="row" style="justify-content:flex-start;margin-top:14px">
-              <button class="btn solid" type="button" id="dljson">Download metadata.json</button>
-              <a class="btn" id="open" href="#" target="_blank" rel="noopener">Open source</a>
-            </div>
-          </div>
-        </div>
-        <pre id="json" style="margin-top:14px"></pre>
-        <p class="note">In production, <code>fetchtune download</code> would then call yt-dlp + ffmpeg and write a tagged audio file. This page ships the resolved JSON so you can show the pipeline without hosting a downloader.</p>
-      </div>
+    <section class="glass shot" id="how">
+      <img src="fetchtune.gif" alt="FetchTune resolving a Spotify URL into metadata" />
     </section>
 
     <div class="cards">
       <div class="card"><b>Resolve</b><span>Title, artists, album, cover, duration, IDs.</span></div>
       <div class="card"><b>Enrich</b><span>Fill gaps across providers.</span></div>
       <div class="card"><b>CLI</b><span><code>fetchtune URL</code> or JSON out.</span></div>
-      <div class="card"><b>Download</b><span>Local yt-dlp + ffmpeg, tagged files.</span></div>
+      <div class="card"><b>Download extra</b><span>Local yt-dlp + ffmpeg, tagged files.</span></div>
     </div>
 
-    <div class="grid" id="cli">
-      <section class="glass panel">
-        <h2>Same flow on your machine</h2>
-        <pre id="cmd">pip install "fetchtune[downloader]"
+    <section class="glass panel">
+      <h2>Use it</h2>
+      <pre>pip install fetchtune
+fetchtune "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"
+
+pip install "fetchtune[downloader]"
 fetchtune download "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"</pre>
-        <p class="ok" id="copied"></p>
-        <button class="btn" type="button" id="make">Copy CLI</button>
-        <p class="note">Library resolves metadata; optional extra uses yt-dlp for audio. Telegram bot: cover first, then file.</p>
-      </section>
-
-      <section class="glass panel" id="download">
-        <h2>Get FetchTune</h2>
-        <div class="downloads">
-          <a class="dl" href="https://pypi.org/project/fetchtune/">
-            <div><b>PyPI</b><small>pip install fetchtune</small></div>
-            <span>↗</span>
-          </a>
-          <a class="dl" href="https://pypi.org/project/fetchtune/#files">
-            <div><b>Wheel &amp; sdist</b><small>Official package files</small></div>
-            <span>↗</span>
-          </a>
-          <a class="dl" href="https://github.com/momalekiii/fetchtune/archive/refs/heads/main.zip">
-            <div><b>Source zip</b><small>github.com/momalekiii/fetchtune</small></div>
-            <span>↓</span>
-          </a>
-          <a class="dl" href="https://github.com/momalekiii/fetchtunebot/archive/refs/heads/main.zip">
-            <div><b>Telegram bot</b><small>github.com/momalekiii/fetchtunebot</small></div>
-            <span>↓</span>
-          </a>
-        </div>
-      </section>
-    </div>
+    </section>
 
     <footer>
       Powered by <a href="https://github.com/momalekiii/fetchtune">FetchTune</a>
@@ -285,24 +184,5 @@ fetchtune download "https://open.spotify.com/track/4a0yULThaKQTm0hYPGEMOc"</pre>
       · MIT
     </footer>
   </div>
-  <script>
-    const input = document.getElementById("url");
-    const cmd = document.getElementById("cmd");
-    const copied = document.getElementById("copied");
-    function render() {
-      const u = (input.value || "https://open.spotify.com/track/…").trim();
-      cmd.textContent = 'pip install "fetchtune[downloader]"\nfetchtune download "' + u + '"';
-    }
-    input.addEventListener("input", render);
-    document.getElementById("make").addEventListener("click", async () => {
-      render();
-      try {
-        await navigator.clipboard.writeText(cmd.textContent);
-        copied.textContent = "Copied.";
-      } catch {
-        copied.textContent = "Select the command and copy.";
-      }
-    });
-  </script>
 </body>
 </html>
